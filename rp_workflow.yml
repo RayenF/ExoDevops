@@ -1,0 +1,51 @@
+name: RP Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Copy source code
+      run: cp -r /path/to/your/source/code/* .
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        # Remplacez requirements.txt par le nom de votre fichier de dépendances
+
+    - name: Run Python script
+      run: python script.py
+
+    - name: Run Flake8 linting
+      run: |
+        # Installer Flake8 s'il n'est pas déjà installé
+        pip install flake8
+        # Exécuter le linting du code Python
+        flake8 .
+
+    - name: Build Docker image
+      run: |
+        docker build -t monappflask .
+        # Remplacez "monappflask" par le nom de l'image Docker souhaité
+
+    - name: Login to Docker Hub
+      run: |
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag monappflask ${{ secrets.DOCKERHUB_USERNAME }}/monappflask:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/monappflask:latest
