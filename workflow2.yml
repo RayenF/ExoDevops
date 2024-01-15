@@ -1,0 +1,45 @@
+name: Workflow 2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        # Remplacez requirements.txt par le nom de votre fichier de dépendances
+
+    - name: Run Python script
+      run: python script.py
+
+    - name: Build Docker image
+      run: |
+        docker build -t monappflask .
+        # Remplacez "monappflask" par le nom de l'image Docker souhaité
+
+    - name: Run unit tests
+      run: |
+        # Ajoutez ici les commandes pour exécuter les tests unitaires
+
+    - name: Login to Docker Hub
+      run: |
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag monappflask ${{ secrets.DOCKERHUB_USERNAME }}/monappflask:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/monappflask:latest
